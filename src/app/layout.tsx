@@ -12,6 +12,33 @@ const orbitron = Orbitron({ weight: ["700", "900"], subsets: ["latin"], variable
 export const metadata: Metadata = {
   title: "🛒 The Grocery Game",
   description: "15 questions about your kitchen universe. Answer. Earn XP. Unlock your Kitchen Rank.",
+
+  openGraph: {
+    title: "🛒 The Grocery Game",
+    description: "15 questions about your kitchen universe. Answer. Earn XP. Unlock your Kitchen Rank.",
+    url: "https://yourdomain.com", // change after deployment
+    siteName: "The Grocery Game",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1200,
+        height: 630,
+        alt: "The Grocery Game",
+      },
+    ],
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "🛒 The Grocery Game",
+    description: "15 questions about your kitchen universe. Answer. Earn XP. Unlock your Kitchen Rank.",
+    images: ["/preview.png"],
+  },
+
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 const themeScript = `(function(){
@@ -39,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
       </head>
+
       <body className={`${fredoka.variable} ${nunito.variable} ${bebas.variable} ${orbitron.variable}`}>
         <ThemeWatcher />
         {children}

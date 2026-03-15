@@ -15,8 +15,7 @@ export const metadata: Metadata = {
 
   openGraph: {
     title: "🛒 The Grocery Game",
-    description: "15 questions about your kitchen universe. Answer. Earn XP. Unlock your Kitchen Rank.",
-    url: "https://yourdomain.com", // change after deployment
+    description: "Make your choices, earn XP, and discover your final score in this playful food adventure.",
     siteName: "The Grocery Game",
     images: [
       {

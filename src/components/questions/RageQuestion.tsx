@@ -11,9 +11,15 @@ interface Props {
   onTextChange: (value: string) => void;
 }
 
-export default function RageQuestion({ question, selected, textValue, onSelect, onTextChange }: Props) {
+export default function RageQuestion({
+  question,
+  selected,
+  textValue,
+  onSelect,
+  onTextChange,
+}: Props) {
   const [revealed, setRevealed] = useState(false);
-  const [widths, setWidths]     = useState<number[]>(question.opts.map(() => 0));
+  const [widths, setWidths] = useState<number[]>(question.opts.map(() => 0));
 
   const handleSelect = (t: string) => {
     onSelect(t);
@@ -101,7 +107,10 @@ export default function RageQuestion({ question, selected, textValue, onSelect, 
                 {revealed && (
                   <div
                     className="flex items-center gap-1"
-                    style={{ animation: "cardIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both" }}
+                    style={{
+                      animation:
+                        "cardIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both",
+                    }}
                   >
                     {/* Mini bar */}
                     <div
@@ -113,7 +122,8 @@ export default function RageQuestion({ question, selected, textValue, onSelect, 
                         style={{
                           width: `${widths[i]}%`,
                           background: opt.col,
-                          transition: "width 0.6s cubic-bezier(0.34,1.56,0.64,1)",
+                          transition:
+                            "width 0.6s cubic-bezier(0.34,1.56,0.64,1)",
                         }}
                       />
                     </div>
@@ -152,10 +162,17 @@ export default function RageQuestion({ question, selected, textValue, onSelect, 
         >
           <span className="text-xl">📊</span>
           <div>
-            <div className="font-extrabold text-[12px]" style={{ color: "#ff6b95" }}>
-              {question.opts.find(o => o.t === selected)?.rage}% of shoppers agree
+            <div
+              className="font-extrabold text-[12px]"
+              style={{ color: "#ff6b95" }}
+            >
+              {question.opts.find((o) => o.t === selected)?.rage}% of shoppers
+              agree
             </div>
-            <div className="text-[10px] font-semibold mt-0.5" style={{ color: "var(--text3)" }}>
+            <div
+              className="text-[10px] font-semibold mt-0.5"
+              style={{ color: "var(--text3)" }}
+            >
               You&apos;re not alone in this frustration
             </div>
           </div>
@@ -165,11 +182,20 @@ export default function RageQuestion({ question, selected, textValue, onSelect, 
       {/* Free-text bonus */}
       <div className="mt-1">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--text3)" }}>
+          <span
+            className="text-[11px] font-extrabold uppercase tracking-widest"
+            style={{ color: "var(--text3)" }}
+          >
             💬 Got a grocery horror story?
           </span>
-          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg"
-            style={{ background: "rgba(124,58,237,0.12)", border: "1.5px solid rgba(124,58,237,0.22)", color: "#a78bfa" }}>
+          <span
+            className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg"
+            style={{
+              background: "rgba(124,58,237,0.12)",
+              border: "1.5px solid rgba(124,58,237,0.22)",
+              color: "#a78bfa",
+            }}
+          >
             +40 XP
           </span>
         </div>
@@ -179,9 +205,25 @@ export default function RageQuestion({ question, selected, textValue, onSelect, 
           rows={2}
           placeholder="e.g. Ordered milk, got condensed milk. Three times."
           className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
-          style={{ background: "var(--opt-bg)", border: "2px solid var(--border)", color: "var(--text)" }}
-          onFocus={(e) => (e.target.style.borderColor = "rgba(255,45,110,0.4)")}
-          onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+          style={{
+            background: "var(--opt-bg)",
+            border: "2px solid var(--border)",
+            color: "var(--text)",
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = "rgba(255,45,110,0.4)";
+
+            /* ensures textarea stays visible when keyboard opens */
+            setTimeout(() => {
+              e.target.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }, 250);
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = "var(--border)";
+          }}
         />
       </div>
     </div>

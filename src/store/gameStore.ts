@@ -74,10 +74,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   const state = get();
   const q = QUESTIONS[state.currentQ];
 
-  console.log("nextQuestion called", state.currentQ, QUESTIONS.length);  // ← add
+  // console.log("nextQuestion called", state.currentQ, QUESTIONS.length);  // ← add
 
   if (!q || state.answers[q.id] === undefined) {
-    console.log("early return — no answer");  // ← add
+    // console.log("early return — no answer");  // ← add
     return;
   }
 
@@ -89,7 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   const newTextBonusXp = state.textBonusXp + textBonus;
 
   if (state.currentQ >= QUESTIONS.length - 1) {
-    console.log("LAST QUESTION — submitting");  // ← add
+    // console.log("LAST QUESTION — submitting");  // ← add
     set({
       xp: newXp, coins: newCoins, streak: newStreak,
       textBonusXp: newTextBonusXp, isSubmitting: true, submitError: false,
@@ -107,12 +107,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
         device,
         ip: state.ipMeta ?? { ip: null, country: null, region: null, city: null, isp: null },
       });
-      console.log("calling submitSurvey");  // ← add
+      // console.log("calling submitSurvey");  // ← add
       await submitSurvey(payload);
-      console.log("submitSurvey success");  // ← add
+      // console.log("submitSurvey success");  // ← add
       set({ screen: "end", isSubmitting: false, submitError: false });
     } catch (err) {
-      console.error("submitSurvey threw:", err);  // ← add
+      // console.error("submitSurvey threw:", err);  // ← add
       set({ isSubmitting: false, submitError: true });
     }
     return;

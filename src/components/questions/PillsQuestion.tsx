@@ -343,16 +343,33 @@ export default function PillsQuestion({
               color: THEME.tag.xpText,
             }}>+40 XP</span>
           </div>
-          <textarea
-            value={textValue}
-            onChange={(e) => onTextChange(e.target.value)}
-            rows={2}
-            placeholder={PLACEHOLDERS[question.id] ?? "Share more if you like…"}
-            className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
-            style={{ background: "var(--opt-bg)", border: "2px solid var(--border)", color: "var(--text)" }}
-            onFocus={(e) => (e.target.style.borderColor = "rgba(232,104,10,0.4)")}
-            onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
-          />
+    <textarea
+  value={textValue}
+  onChange={(e) => onTextChange(e.target.value)}
+  rows={2}
+  placeholder={PLACEHOLDERS[question.id] ?? "Share more if you like…"}
+  inputMode="text"
+  className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
+  style={{
+    background: "var(--opt-bg)",
+    border: "2px solid var(--border)",
+    color: "var(--text)"
+  }}
+  onFocus={(e) => {
+    e.target.style.borderColor = "rgba(232,104,10,0.4)";
+
+    /* ensures textarea stays visible when keyboard opens */
+    setTimeout(() => {
+      e.target.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }, 250);
+  }}
+  onBlur={(e) => {
+    e.target.style.borderColor = "var(--border)";
+  }}
+/>
         </div>
       )}
     </div>

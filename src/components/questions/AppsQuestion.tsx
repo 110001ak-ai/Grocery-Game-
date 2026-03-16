@@ -114,16 +114,33 @@ export default function AppsQuestion({ question, selected, textValue, onSelect, 
             +40 XP
           </span>
         </div>
-        <textarea
-          value={textValue}
-          onChange={(e) => onTextChange(e.target.value)}
-          rows={2}
-          placeholder="e.g. Blinkit is the closest to my area, never disappoints…"
-          className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
-          style={{ background: "var(--opt-bg)", border: "2px solid var(--border)", color: "var(--text)" }}
-          onFocus={(e) => (e.target.style.borderColor = "rgba(232,104,10,0.4)")}
-          onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
-        />
+   <textarea
+  value={textValue}
+  onChange={(e) => onTextChange(e.target.value)}
+  rows={2}
+  inputMode="text"
+  placeholder="e.g. Blinkit is the closest to my area, never disappoints…"
+  className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
+  style={{
+    background: "var(--opt-bg)",
+    border: "2px solid var(--border)",
+    color: "var(--text)"
+  }}
+  onFocus={(e) => {
+    e.target.style.borderColor = "rgba(232,104,10,0.4)";
+
+    /* ensure textarea stays visible when mobile keyboard opens */
+    setTimeout(() => {
+      e.target.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }, 250);
+  }}
+  onBlur={(e) => {
+    e.target.style.borderColor = "var(--border)";
+  }}
+/>
       </div>
     </div>
   );

@@ -29,10 +29,6 @@ const CHIP_KEYFRAMES = `
   0%, 100% { box-shadow: 0 0 0 0 rgba(var(--fq-rgb), 0.0); }
   50%       { box-shadow: 0 0 0 5px rgba(var(--fq-rgb), 0.12); }
 }
-@keyframes fqCalDotIn {
-  from { transform: scale(0) translateY(2px); opacity: 0; }
-  to   { transform: scale(1) translateY(0);   opacity: 1; }
-}
 @keyframes fqBadgePop {
   0%   { transform: scale(0.6); opacity: 0; }
   70%  { transform: scale(1.12); }
@@ -128,21 +124,21 @@ export default function FreqQuestion({ question, selected, onSelect }: Props) {
           </div>
 
           {/* Compact grid */}
-          <div style={{ padding: "6px 10px 8px" }}>
+          <div style={{ padding: "6px 10px 9px" }}>
             {/* Day-of-week row */}
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(7, 1fr)",
-              marginBottom: 3,
+              marginBottom: 4,
             }}>
               {DAYS_SHORT.map((d, i) => (
                 <div key={i} style={{
                   textAlign: "center",
-                  fontSize: 8,
-                  fontWeight: 800,
+                  fontSize: 10,
+                  fontWeight: 700,
                   color: "var(--text3)",
-                  letterSpacing: "0.06em",
-                  opacity: 0.55,
+                  letterSpacing: "0.04em",
+                  opacity: 0.5,
                 }}>{d}</div>
               ))}
             </div>
@@ -151,7 +147,7 @@ export default function FreqQuestion({ question, selected, onSelect }: Props) {
             <div style={{
               display: "grid",
               gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 2,
+              gap: 3,
             }}>
               {blanks.map((_, i) => <div key={`b${i}`} />)}
               {days.map(d => {
@@ -165,14 +161,14 @@ export default function FreqQuestion({ question, selected, onSelect }: Props) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    borderRadius: 6,
-                    fontSize: 9,
-                    fontWeight: isShop ? 800 : 400,
-                    position: "relative",
+                    borderRadius: 7,
+                    // Readable font size — never shrink below 11px
+                    fontSize: 12,
+                    fontWeight: isShop && isVis ? 700 : 400,
 
                     background:
                       isShop && isVis
-                        ? `${activeOpt!.col}1a`
+                        ? `${activeOpt!.col}28`
                         : isTod
                         ? "var(--border)"
                         : "transparent",
@@ -184,32 +180,23 @@ export default function FreqQuestion({ question, selected, onSelect }: Props) {
                         ? "var(--text)"
                         : "var(--text3)",
 
+                    // Animate in shopping days — pop up from nothing
                     opacity: isShop && !isVis ? 0 : 1,
-                    transform: isShop && isVis ? "scale(1)" : "scale(0.82)",
-                    transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+                    transform:
+                      isShop && isVis
+                        ? "scale(1)"
+                        : isShop && !isVis
+                        ? "scale(0.6)"
+                        : "scale(1)",
+                    transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
 
-                    // today ring
+                    // Today gets a subtle ring, no dot
                     outline: isTod
-                      ? `1.5px solid ${activeOpt?.col ?? "var(--border)"}44`
+                      ? `1.5px solid ${activeOpt?.col ?? "var(--border)"}55`
                       : "none",
                     outlineOffset: 1,
                   }}>
                     {d}
-                    {/* tiny dot marker under shop day */}
-                    {isShop && isVis && (
-                      <span style={{
-                        position: "absolute",
-                        bottom: 1,
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: 3,
-                        height: 3,
-                        borderRadius: "50%",
-                        background: activeOpt!.col,
-                        opacity: 0.7,
-                        animation: "fqCalDotIn 0.2s ease-out both",
-                      }} />
-                    )}
                   </div>
                 );
               })}

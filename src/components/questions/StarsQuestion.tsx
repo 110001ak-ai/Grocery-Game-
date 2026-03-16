@@ -12,10 +12,16 @@ interface Props {
   onTextChange: (value: string) => void;
 }
 
-const STAR_COLORS = ["#ff6b6b","#ff9f43","#ffd166","#26de81","#00e5c3"];
-const STAR_LABELS = ["Meh","Okay","Good","Great","Essential"];
+const STAR_COLORS = ["#ff6b6b", "#ff9f43", "#ffd166", "#26de81", "#00e5c3"];
+const STAR_LABELS = ["Meh", "Okay", "Good", "Great", "Essential"];
 
-export default function StarsQuestion({ question, selected, textValue, onSelect, onTextChange }: Props) {
+export default function StarsQuestion({
+  question,
+  selected,
+  textValue,
+  onSelect,
+  onTextChange,
+}: Props) {
   const [hovered, setHovered] = useState<number | null>(null);
   const active = hovered ?? selected ?? 0;
   const activeColor = active > 0 ? STAR_COLORS[active - 1] : "var(--border)";
@@ -25,8 +31,8 @@ export default function StarsQuestion({ question, selected, textValue, onSelect,
       {/* Stars */}
       <div className="flex gap-1.5 items-end">
         {[1, 2, 3, 4, 5].map((i) => {
-          const isLit  = i <= active;
-          const color  = STAR_COLORS[i - 1];
+          const isLit = i <= active;
+          const color = STAR_COLORS[i - 1];
           return (
             <button
               key={i}
@@ -34,7 +40,9 @@ export default function StarsQuestion({ question, selected, textValue, onSelect,
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
               className="cursor-pointer border-none bg-transparent p-0 flex flex-col items-center gap-1"
-              style={{ transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
+              style={{
+                transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+              }}
               aria-label={`${i} star${i !== 1 ? "s" : ""}`}
             >
               {/* Height increases with each star */}
@@ -93,7 +101,9 @@ export default function StarsQuestion({ question, selected, textValue, onSelect,
       {active > 0 && (
         <div
           className="w-full flex gap-1.5"
-          style={{ animation: "cardIn 0.25s cubic-bezier(0.34,1.4,0.64,1) both" }}
+          style={{
+            animation: "cardIn 0.25s cubic-bezier(0.34,1.4,0.64,1) both",
+          }}
         >
           {[1, 2, 3, 4, 5].map((i) => (
             <div
@@ -117,23 +127,54 @@ export default function StarsQuestion({ question, selected, textValue, onSelect,
       {/* Free-text */}
       <div className="w-full">
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--text3)" }}>
+          <span
+            className="text-[11px] font-extrabold uppercase tracking-widest"
+            style={{ color: "var(--text3)" }}
+          >
             💭 Tell us why
           </span>
-          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg"
-            style={{ background: THEME.tag.xpBg, border: `1.5px solid ${THEME.tag.xpBorder}`, color: THEME.tag.xpText }}>
+          <span
+            className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg"
+            style={{
+              background: THEME.tag.xpBg,
+              border: `1.5px solid ${THEME.tag.xpBorder}`,
+              color: THEME.tag.xpText,
+            }}
+          >
             +40 XP
           </span>
         </div>
         <textarea
           value={textValue}
-          onChange={(e) => onTextChange(e.target.value)}
+          onChange={(e) => {
+            onTextChange(e.target.value);
+
+            /* optional auto-grow */
+            e.target.style.height = "auto";
+            e.target.style.height = e.target.scrollHeight + "px";
+          }}
           rows={2}
           placeholder="e.g. Midnight Maggi emergencies are real…"
           className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
-          style={{ background: "var(--opt-bg)", border: "2px solid var(--border)", color: "var(--text)" }}
-          onFocus={(e) => (e.target.style.borderColor = "rgba(232,104,10,0.4)")}
-          onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+          style={{
+            background: "var(--opt-bg)",
+            border: "2px solid var(--border)",
+            color: "var(--text)",
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = "rgba(232,104,10,0.4)";
+
+            /* ensure field stays visible when keyboard opens */
+            setTimeout(() => {
+              e.target.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }, 250);
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = "var(--border)";
+          }}
         />
       </div>
     </div>

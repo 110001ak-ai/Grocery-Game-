@@ -24,10 +24,10 @@ export default function DropdownQuestion({
   const { dropdownOpen, setDropdownOpen } = useGameStore();
 
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const listRef    = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const selectedOpt = question.opts.find((o) => o.nm === selected);
-  const isOther     = selected === "Other";
+  const isOther = selected === "Other";
 
   // Close on click outside
   useEffect(() => {
@@ -37,7 +37,8 @@ export default function DropdownQuestion({
       if (
         triggerRef.current?.contains(target) ||
         listRef.current?.contains(target)
-      ) return;
+      )
+        return;
       setDropdownOpen(false);
     };
     document.addEventListener("mousedown", handler);
@@ -59,7 +60,6 @@ export default function DropdownQuestion({
 
   return (
     <div className="flex flex-col gap-3">
-
       {/* ── Trigger ─────────────────────────────────────────────────────── */}
       <button
         ref={triggerRef}
@@ -67,22 +67,28 @@ export default function DropdownQuestion({
         onClick={() => setDropdownOpen(!dropdownOpen)}
         className="w-full flex items-center justify-between px-4 py-4 rounded-2xl cursor-pointer text-left"
         style={{
-          background:  selectedOpt ? THEME.opt.selectedBg : "var(--opt-bg)",
-          border:      `1.5px solid ${selectedOpt ? THEME.opt.selectedBorder : "var(--border)"}`,
-          boxShadow:   selectedOpt ? THEME.opt.selectedShadow : "none",
-          transition:  "all 0.2s",
+          background: selectedOpt ? THEME.opt.selectedBg : "var(--opt-bg)",
+          border: `1.5px solid ${selectedOpt ? THEME.opt.selectedBorder : "var(--border)"}`,
+          boxShadow: selectedOpt ? THEME.opt.selectedShadow : "none",
+          transition: "all 0.2s",
         }}
       >
         <div className="flex items-center gap-3">
           {selectedOpt ? (
             <>
               <span className="text-2xl leading-none">{selectedOpt.em}</span>
-              <span className="font-extrabold text-[15px]" style={{ color: "var(--text)" }}>
+              <span
+                className="font-extrabold text-[15px]"
+                style={{ color: "var(--text)" }}
+              >
                 {selectedOpt.nm}
               </span>
             </>
           ) : (
-            <span className="font-semibold text-[14px]" style={{ color: "var(--text3)" }}>
+            <span
+              className="font-semibold text-[14px]"
+              style={{ color: "var(--text3)" }}
+            >
               Select your kitchen tradition…
             </span>
           )}
@@ -106,11 +112,11 @@ export default function DropdownQuestion({
           ref={listRef}
           className="rounded-2xl"
           style={{
-            background:  "var(--card)",
-            border:      "1.5px solid var(--border)",
-            boxShadow:   "0 8px 32px rgba(0,0,0,0.28)",
-            overflow:    "hidden",
-            animation:   "cardIn 0.18s cubic-bezier(0.34,1.4,0.64,1) both",
+            background: "var(--card)",
+            border: "1.5px solid var(--border)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.28)",
+            overflow: "hidden",
+            animation: "cardIn 0.18s cubic-bezier(0.34,1.4,0.64,1) both",
           }}
         >
           {question.opts.map((opt, i) => {
@@ -123,15 +129,18 @@ export default function DropdownQuestion({
                 onClick={() => handleSelect(opt.nm)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left cursor-pointer border-none"
                 style={{
-                  background:   isSel ? THEME.opt.selectedBg : "transparent",
+                  background: isSel ? THEME.opt.selectedBg : "transparent",
                   borderBottom: isLast ? "none" : "1px solid var(--border2)",
-                  transition:   "background 0.15s",
+                  transition: "background 0.15s",
                 }}
                 onMouseEnter={(e) => {
-                  if (!isSel) e.currentTarget.style.background = "var(--opt-bg-h)";
+                  if (!isSel)
+                    e.currentTarget.style.background = "var(--opt-bg-h)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = isSel ? THEME.opt.selectedBg : "transparent";
+                  e.currentTarget.style.background = isSel
+                    ? THEME.opt.selectedBg
+                    : "transparent";
                 }}
               >
                 <span className="text-xl flex-shrink-0 w-8 text-center leading-none">
@@ -144,7 +153,10 @@ export default function DropdownQuestion({
                   {opt.nm}
                 </span>
                 {isSel && (
-                  <span className="text-sm flex-shrink-0 ml-2" style={{ color: THEME.primary }}>
+                  <span
+                    className="text-sm flex-shrink-0 ml-2"
+                    style={{ color: THEME.primary }}
+                  >
                     ✓
                   </span>
                 )}
@@ -157,7 +169,9 @@ export default function DropdownQuestion({
       {/* ── "Other" → free-text field ────────────────────────────────────── */}
       {isOther && (
         <div
-          style={{ animation: "cardIn 0.25s cubic-bezier(0.34,1.4,0.64,1) both" }}
+          style={{
+            animation: "cardIn 0.25s cubic-bezier(0.34,1.4,0.64,1) both",
+          }}
         >
           <div className="flex items-center gap-2 mb-1.5">
             <span
@@ -179,17 +193,36 @@ export default function DropdownQuestion({
           </div>
           <textarea
             value={textValue}
-            onChange={(e) => onTextChange(e.target.value)}
+            onChange={(e) => {
+              onTextChange(e.target.value);
+
+              /* optional: auto grow */
+              e.target.style.height = "auto";
+              e.target.style.height = e.target.scrollHeight + "px";
+            }}
             rows={2}
+            inputMode="text"
             placeholder="e.g. Sindhi, Konkani, Bihari…"
             className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
             style={{
               background: "var(--opt-bg)",
-              border:     "2px solid var(--border)",
-              color:      "var(--text)",
+              border: "2px solid var(--border)",
+              color: "var(--text)",
             }}
-            onFocus={(e) => (e.target.style.borderColor = "rgba(232,104,10,0.4)")}
-            onBlur={(e)  => (e.target.style.borderColor = "var(--border)")}
+            onFocus={(e) => {
+              e.target.style.borderColor = "rgba(232,104,10,0.4)";
+
+              /* keep textarea visible when keyboard opens */
+              setTimeout(() => {
+                e.target.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }, 250);
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = "var(--border)";
+            }}
           />
         </div>
       )}
@@ -197,7 +230,9 @@ export default function DropdownQuestion({
       {/* ── Any other selection → signature dish bonus ───────────────────── */}
       {selected && !isOther && (
         <div
-          style={{ animation: "cardIn 0.25s cubic-bezier(0.34,1.4,0.64,1) both" }}
+          style={{
+            animation: "cardIn 0.25s cubic-bezier(0.34,1.4,0.64,1) both",
+          }}
         >
           <div className="flex items-center gap-2 mb-1.5">
             <span
@@ -219,17 +254,36 @@ export default function DropdownQuestion({
           </div>
           <textarea
             value={textValue}
-            onChange={(e) => onTextChange(e.target.value)}
+            onChange={(e) => {
+              onTextChange(e.target.value);
+
+              /* optional: auto grow while typing */
+              e.target.style.height = "auto";
+              e.target.style.height = e.target.scrollHeight + "px";
+            }}
             rows={2}
+            inputMode="text"
             placeholder="e.g. Butter chicken every Sunday…"
             className="w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold resize-none outline-none"
             style={{
               background: "var(--opt-bg)",
-              border:     "2px solid var(--border)",
-              color:      "var(--text)",
+              border: "2px solid var(--border)",
+              color: "var(--text)",
             }}
-            onFocus={(e) => (e.target.style.borderColor = "rgba(232,104,10,0.4)")}
-            onBlur={(e)  => (e.target.style.borderColor = "var(--border)")}
+            onFocus={(e) => {
+              e.target.style.borderColor = "rgba(232,104,10,0.4)";
+
+              /* keeps textarea visible when mobile keyboard opens */
+              setTimeout(() => {
+                e.target.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }, 250);
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = "var(--border)";
+            }}
           />
         </div>
       )}

@@ -18,13 +18,6 @@ export async function POST(req: NextRequest) {
     city: req.headers.get("x-vercel-ip-city") ?? null,
     isp: null
   };
-  console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("🌐 IP CAPTURED");
-  console.log(`IP       : ${ip.ip}`);
-  console.log(`Country  : ${ip.country}`);
-  console.log(`Region   : ${ip.region}`);
-  console.log(`City     : ${ip.city}`);
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
   // ── Forward to Google Sheets ──────────────────────────────────────────────
    if (GAS_URL) {

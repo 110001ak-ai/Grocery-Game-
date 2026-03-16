@@ -24,6 +24,26 @@ function buildShopDates(opt: FreqOption): Set<number> {
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS_SHORT = ["S","M","T","W","T","F","S"];
 
+const CHIP_KEYFRAMES = `
+@keyframes fqPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--fq-rgb), 0.0); }
+  50%       { box-shadow: 0 0 0 5px rgba(var(--fq-rgb), 0.12); }
+}
+@keyframes fqCalDotIn {
+  from { transform: scale(0) translateY(2px); opacity: 0; }
+  to   { transform: scale(1) translateY(0);   opacity: 1; }
+}
+@keyframes fqBadgePop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fqTapHint {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-2px) scale(1.03); }
+}
+`;
+
 export default function FreqQuestion({ question, selected, onSelect }: Props) {
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth(), today = now.getDate();
@@ -33,138 +53,369 @@ export default function FreqQuestion({ question, selected, onSelect }: Props) {
   const shopDates = activeOpt ? buildShopDates(activeOpt) : new Set<number>();
 
   const [visibleDates, setVisibleDates] = useState<Set<number>>(new Set());
+  const [pressed, setPressed] = useState<string | null>(null);
+
   useEffect(() => {
     setVisibleDates(new Set());
     if (!activeOpt) return;
-    const dates = Array.from(buildShopDates(activeOpt)).sort((a,b) => a-b);
-    dates.forEach((d,i) => setTimeout(() =>
-      setVisibleDates(prev => new Set(Array.from(prev).concat(d))), i * 30));
+    const dates = Array.from(buildShopDates(activeOpt)).sort((a, b) => a - b);
+    dates.forEach((d, i) =>
+      setTimeout(() => setVisibleDates(prev => new Set(Array.from(prev).concat(d))), i * 22)
+    );
   }, [selected]);
 
   const blanks = Array.from({ length: firstDow });
   const days   = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   return (
-    <div className="flex flex-col gap-3">
+    <>
+      <style>{CHIP_KEYFRAMES}</style>
+      <div className="flex flex-col gap-3">
 
-      {/* ── Calendar ──────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{
-        background: "var(--opt-bg)",
-        border: `1.5px solid ${activeOpt ? activeOpt.col + "44" : "var(--border)"}`,
-        transition: "border-color 0.3s",
-      }}>
-        <div className="flex items-center justify-between px-4 py-3" style={{
-          background: activeOpt ? `${activeOpt.col}0e` : "transparent",
-          borderBottom: "1px solid var(--border2)",
-          transition: "background 0.35s",
+        {/* ── Minimal Calendar ─────────────────────────────────────────── */}
+        <div style={{
+          borderRadius: 14,
+          overflow: "hidden",
+          border: `1px solid ${activeOpt ? activeOpt.col + "35" : "var(--border)"}`,
+          background: "var(--opt-bg)",
+          transition: "border-color 0.3s, box-shadow 0.3s",
+          boxShadow: activeOpt ? `0 2px 16px ${activeOpt.col}14` : "none",
         }}>
-          <div>
-            <div className="font-display text-base" style={{ color: "var(--text)" }}>
-              {MONTHS[month]} {year}
+          {/* Slim header */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "8px 12px 7px",
+            borderBottom: `1px solid ${activeOpt ? activeOpt.col + "18" : "var(--border2)"}`,
+            background: activeOpt ? `${activeOpt.col}08` : "transparent",
+            transition: "background 0.3s",
+          }}>
+            {/* Month + year */}
+            <span style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: activeOpt ? activeOpt.col : "var(--text2)",
+              letterSpacing: "0.04em",
+              transition: "color 0.25s",
+            }}>
+              {MONTHS[month].toUpperCase()} {year}
+            </span>
+
+            {/* Right side: either idle hint or animated badge */}
+            {activeOpt ? (
+              <span
+                key={activeOpt.t}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  padding: "3px 8px",
+                  borderRadius: 20,
+                  background: activeOpt.badgeCol,
+                  color: activeOpt.col,
+                  border: `1px solid ${activeOpt.col}33`,
+                  letterSpacing: "0.03em",
+                  animation: "fqBadgePop 0.35s cubic-bezier(0.34,1.56,0.64,1) both",
+                }}
+              >
+                {shopDates.size} days · {activeOpt.badge}
+              </span>
+            ) : (
+              <span style={{ fontSize: 9, color: "var(--text3)", fontWeight: 600, opacity: 0.7 }}>
+                pick below ↓
+              </span>
+            )}
+          </div>
+
+          {/* Compact grid */}
+          <div style={{ padding: "6px 10px 8px" }}>
+            {/* Day-of-week row */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(7, 1fr)",
+              marginBottom: 3,
+            }}>
+              {DAYS_SHORT.map((d, i) => (
+                <div key={i} style={{
+                  textAlign: "center",
+                  fontSize: 8,
+                  fontWeight: 800,
+                  color: "var(--text3)",
+                  letterSpacing: "0.06em",
+                  opacity: 0.55,
+                }}>{d}</div>
+              ))}
             </div>
-            <div className="text-[10px] font-bold mt-0.5" style={{ color: activeOpt ? activeOpt.col : "var(--text3)" }}>
-              {activeOpt ? `${shopDates.size} shopping days this month` : "Select a frequency below"}
+
+            {/* Date cells */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(7, 1fr)",
+              gap: 2,
+            }}>
+              {blanks.map((_, i) => <div key={`b${i}`} />)}
+              {days.map(d => {
+                const isShop = shopDates.has(d);
+                const isVis  = visibleDates.has(d);
+                const isTod  = d === today;
+
+                return (
+                  <div key={d} style={{
+                    aspectRatio: "1",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 6,
+                    fontSize: 9,
+                    fontWeight: isShop ? 800 : 400,
+                    position: "relative",
+
+                    background:
+                      isShop && isVis
+                        ? `${activeOpt!.col}1a`
+                        : isTod
+                        ? "var(--border)"
+                        : "transparent",
+
+                    color:
+                      isShop && isVis
+                        ? activeOpt!.col
+                        : isTod
+                        ? "var(--text)"
+                        : "var(--text3)",
+
+                    opacity: isShop && !isVis ? 0 : 1,
+                    transform: isShop && isVis ? "scale(1)" : "scale(0.82)",
+                    transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+
+                    // today ring
+                    outline: isTod
+                      ? `1.5px solid ${activeOpt?.col ?? "var(--border)"}44`
+                      : "none",
+                    outlineOffset: 1,
+                  }}>
+                    {d}
+                    {/* tiny dot marker under shop day */}
+                    {isShop && isVis && (
+                      <span style={{
+                        position: "absolute",
+                        bottom: 1,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: 3,
+                        height: 3,
+                        borderRadius: "50%",
+                        background: activeOpt!.col,
+                        opacity: 0.7,
+                        animation: "fqCalDotIn 0.2s ease-out both",
+                      }} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-          {activeOpt && (
-            <div className="text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg"
-              style={{ background: activeOpt.badgeCol, color: activeOpt.col, border: `1.5px solid ${activeOpt.col}44` }}>
-              {activeOpt.badge}
-            </div>
-          )}
         </div>
 
-        <div className="grid grid-cols-7 px-3 pt-2 pb-0.5">
-          {DAYS_SHORT.map((d, i) => (
-            <div key={i} className="text-center font-extrabold"
-              style={{ fontSize: "9px", color: "var(--text3)", letterSpacing: "0.05em" }}>{d}</div>
-          ))}
-        </div>
+        {/* ── Frequency chips — strong click feel ──────────────────────── */}
+        <div style={{ position: "relative" }}>
+          {/* Fade edges */}
+          <div style={{
+            position: "absolute", left: 0, top: 0, bottom: 0, width: 28,
+            background: "linear-gradient(to right, var(--bg) 30%, transparent)",
+            zIndex: 10, pointerEvents: "none",
+          }} />
+          <div style={{
+            position: "absolute", right: 0, top: 0, bottom: 0, width: 28,
+            background: "linear-gradient(to left, var(--bg) 30%, transparent)",
+            zIndex: 10, pointerEvents: "none",
+          }} />
 
-        <div className="grid grid-cols-7 gap-[3px] px-3 pb-3 pt-1">
-          {blanks.map((_, i) => <div key={`b${i}`} />)}
-          {days.map(d => {
-            const isShop = shopDates.has(d), isVis = visibleDates.has(d), isTod = d === today;
-            return (
-              <div key={d} className="aspect-square flex items-center justify-center rounded-lg" style={{
-                fontSize: "10px",
-                fontWeight: isShop ? 700 : 500,
-                // ── Muted: translucent bg + colored text instead of solid fill ──
-                background: isShop && isVis ? `${activeOpt!.col}28` : isTod ? "var(--border)" : "transparent",
-                color: isShop && isVis ? activeOpt!.col : isTod ? "var(--text)" : "var(--text3)",
-                transform: isShop && isVis ? "scale(1)" : "scale(0.85)",
-                opacity: isShop && !isVis ? 0 : 1,
-                transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-                // subtle dot under shopping day instead of boxShadow
-                borderBottom: isShop && isVis ? `2px solid ${activeOpt!.col}99` : "none",
-                outline: isTod ? `2px solid ${activeOpt?.col ?? "var(--border)"}55` : "none",
-                outlineOffset: "1px",
-              }}>{d}</div>
-            );
-          })}
-        </div>
-      </div>
+          {/* Scroll arrows */}
+          <div style={{
+            position: "absolute", left: 3, top: "50%", transform: "translateY(-50%)",
+            fontSize: 12, color: "var(--text3)", zIndex: 20, pointerEvents: "none",
+            fontWeight: 300,
+          }}>‹</div>
+          <div style={{
+            position: "absolute", right: 3, top: "50%", transform: "translateY(-50%)",
+            fontSize: 12, color: "var(--text3)", zIndex: 20, pointerEvents: "none",
+            fontWeight: 300,
+          }}>›</div>
 
-      {/* ── Swipe chips ───────────────────────────────────────────────────── */}
-      <div className="relative">
-        <div className="absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, var(--bg), transparent)" }} />
-        <div className="absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, var(--bg), transparent)" }} />
-        <div className="absolute left-1 top-1/2 -translate-y-1/2 z-20 pointer-events-none text-[10px]"
-          style={{ color: "var(--text3)" }}>‹</div>
-        <div className="absolute right-1 top-1/2 -translate-y-1/2 z-20 pointer-events-none text-[10px]"
-          style={{ color: "var(--text3)" }}>›</div>
+          <div style={{
+            display: "flex",
+            gap: 8,
+            padding: "4px 28px 6px",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"],
+            scrollSnapType: "x mandatory",
+          }}>
+            {question.opts.map(opt => {
+              const isSel  = selected === opt.t;
+              const isPrs  = pressed === opt.t;
+              // Decompose hex color to rgb for CSS variable trick
+              const hex = opt.col.replace("#", "");
+              const r = parseInt(hex.slice(0, 2), 16);
+              const g = parseInt(hex.slice(2, 4), 16);
+              const b = parseInt(hex.slice(4, 6), 16);
 
-        <div className="flex gap-2 px-4 pb-1" style={{
-          overflowX: "auto", scrollbarWidth: "none",
-          WebkitOverflowScrolling: "touch" as React.CSSProperties["WebkitOverflowScrolling"],
-          scrollSnapType: "x mandatory",
-        }}>
-          {question.opts.map(opt => {
-            const isSel = selected === opt.t;
-            return (
-              <button key={opt.t} type="button" onClick={() => onSelect(opt.t)}
-                className="flex-shrink-0 flex flex-col items-center gap-1.5 rounded-2xl border-none cursor-pointer active:scale-95 relative overflow-hidden"
-                style={{
-                  padding: "12px 10px 10px", width: "80px",
-                  scrollSnapAlign: "center",
-                  // ── Softer selected bg ──
-                  background: isSel ? `${opt.col}14` : "var(--opt-bg)",
-                  border: `1.5px solid ${isSel ? opt.col + "88" : "var(--border)"}`,
-                  boxShadow: isSel ? `0 4px 14px ${opt.col}22` : "none",
-                  transform: isSel ? "translateY(-3px) scale(1.06)" : "scale(1)",
-                  transition: "all 0.25s cubic-bezier(0.34,1.56,0.64,1)",
-                }}>
-                {isSel && (
-                  <div className="absolute inset-0 pointer-events-none" style={{
-                    background: `radial-gradient(circle at 50% 30%, ${opt.col}14, transparent 70%)`,
+              return (
+                <button
+                  key={opt.t}
+                  type="button"
+                  onClick={() => onSelect(opt.t)}
+                  onMouseDown={() => setPressed(opt.t)}
+                  onMouseUp={() => setPressed(null)}
+                  onMouseLeave={() => setPressed(null)}
+                  onTouchStart={() => setPressed(opt.t)}
+                  onTouchEnd={() => setPressed(null)}
+                  style={{
+                    // Layout
+                    flexShrink: 0,
+                    width: 76,
+                    padding: "11px 8px 9px",
+                    scrollSnapAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 5,
+                    position: "relative",
+                    overflow: "hidden",
+                    borderRadius: 18,
+                    cursor: "pointer",
+                    border: "none",
+                    outline: "none",
+                    WebkitTapHighlightColor: "transparent",
+
+                    // Color state
+                    // @ts-ignore css variable
+                    "--fq-rgb": `${r},${g},${b}`,
+
+                    background: isSel
+                      ? `${opt.col}18`
+                      : isPrs
+                      ? `${opt.col}0e`
+                      : "var(--opt-bg)",
+
+                    // Border / ring
+                    boxShadow: isSel
+                      ? `0 0 0 2px ${opt.col}, 0 6px 20px ${opt.col}28`
+                      : isPrs
+                      ? `0 0 0 1.5px ${opt.col}99, 0 3px 10px ${opt.col}18`
+                      : `0 0 0 1.5px var(--border), 0 2px 8px rgba(0,0,0,0.06)`,
+
+                    // Lift / press
+                    transform: isSel
+                      ? "translateY(-5px) scale(1.07)"
+                      : isPrs
+                      ? "translateY(2px) scale(0.95)"
+                      : "translateY(0) scale(1)",
+
+                    // Idle tap hint animation on unselected
+                    animation: !isSel && !isPrs
+                      ? `fqTapHint 2.4s ${question.opts.indexOf(opt) * 0.15}s ease-in-out infinite`
+                      : "none",
+
+                    transition: "transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease, background 0.18s ease",
+                  } as React.CSSProperties}
+                >
+                  {/* Radial glow when selected */}
+                  {isSel && (
+                    <div style={{
+                      position: "absolute", inset: 0, pointerEvents: "none",
+                      background: `radial-gradient(circle at 50% 25%, ${opt.col}22, transparent 65%)`,
+                    }} />
+                  )}
+
+                  {/* Pulse ring on unselected — "tap me" */}
+                  {!isSel && (
+                    <div style={{
+                      position: "absolute", inset: 0, borderRadius: 18,
+                      animation: `fqPulse 2.4s ${question.opts.indexOf(opt) * 0.15}s ease-in-out infinite`,
+                      pointerEvents: "none",
+                    }} />
+                  )}
+
+                  {/* ✓ checkmark on selected */}
+                  {isSel && (
+                    <div style={{
+                      position: "absolute", top: 7, right: 7,
+                      width: 14, height: 14,
+                      borderRadius: "50%",
+                      background: opt.col,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 7, color: "#fff", fontWeight: 900,
+                      boxShadow: `0 1px 4px ${opt.col}66`,
+                      animation: "fqBadgePop 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
+                    }}>✓</div>
+                  )}
+
+                  {/* Emoji */}
+                  <span style={{
+                    fontSize: 22,
+                    display: "inline-block",
+                    position: "relative",
+                    zIndex: 1,
+                    filter: isSel ? `drop-shadow(0 2px 5px ${opt.col}99)` : "none",
+                    transform: isSel
+                      ? "scale(1.22) rotate(-6deg)"
+                      : isPrs
+                      ? "scale(0.88)"
+                      : "scale(1)",
+                    transition: "transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.18s ease",
+                  }}>
+                    {opt.em}
+                  </span>
+
+                  {/* Label */}
+                  <span style={{
+                    fontSize: 9,
+                    fontWeight: 800,
+                    textAlign: "center",
+                    letterSpacing: "0.01em",
+                    lineHeight: 1.2,
+                    maxWidth: 64,
+                    position: "relative",
+                    zIndex: 1,
+                    color: isSel ? opt.col : "var(--text2)",
+                    transition: "color 0.18s ease",
+                  }}>
+                    {opt.t}
+                  </span>
+
+                  {/* Bottom accent bar */}
+                  <div style={{
+                    position: "absolute",
+                    bottom: 0, left: 0, right: 0,
+                    height: 3,
+                    borderRadius: "0 0 18px 18px",
+                    background: `linear-gradient(90deg, ${opt.col}88, ${opt.col})`,
+                    transform: isSel ? "scaleX(1)" : "scaleX(0)",
+                    transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)",
+                    transformOrigin: "center",
                   }} />
-                )}
-                <span className="relative z-10" style={{
-                  fontSize: "22px", display: "inline-block",
-                  filter: isSel ? `drop-shadow(0 2px 6px ${opt.col}88)` : "none",
-                  transform: isSel ? "scale(1.15) rotate(-5deg)" : "scale(1)",
-                  transition: "all 0.25s cubic-bezier(0.34,1.56,0.64,1)",
-                }}>{opt.em}</span>
-                <span className="relative z-10 font-extrabold text-center leading-tight" style={{
-                  fontSize: "9px",
-                  color: isSel ? opt.col : "var(--text3)",
-                  transition: "color 0.2s", maxWidth: "68px",
-                }}>{opt.t}</span>
-                <div className="absolute bottom-0 left-0 right-0 rounded-b-2xl" style={{
-                  height: "2px", background: opt.col,
-                  transform: isSel ? "scaleX(1)" : "scaleX(0)",
-                  transition: "transform 0.28s cubic-bezier(0.34,1.56,0.64,1)",
-                }} />
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <p className="text-center text-[10px] font-bold tracking-widest uppercase -mt-1"
-        style={{ color: "var(--text3)" }}>← swipe to see all →</p>
-    </div>
+        {/* Scroll hint */}
+        <p style={{
+          textAlign: "center",
+          fontSize: 8,
+          fontWeight: 700,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "var(--text3)",
+          marginTop: -4,
+          opacity: 0.6,
+        }}>
+          ← tap to choose →
+        </p>
+      </div>
+    </>
   );
 }

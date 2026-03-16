@@ -89,6 +89,8 @@ export type QuestionType =
   | "grid2"
   | "dropdown"
   | "pills"
+  | "kitchen_roots"
+  | "source"
   | "idea";
 
 export interface BaseQuestion {
@@ -177,6 +179,18 @@ export interface PillsQuestion extends BaseQuestion {
   otherLabel?: string;
 }
 
+export interface KitchenRootQuestion extends BaseQuestion {
+  type: "kitchen_roots";
+  opts: PillOption[];
+  fu?: boolean;
+}
+
+export interface SourceQuestion extends BaseQuestion {
+  type: "source";
+  opts: PillOption[];
+  fu?: boolean;
+}
+
 export interface IdeaQuestion extends BaseQuestion {
   type: "idea";
   fu: true;
@@ -197,6 +211,8 @@ export type Question =
   | Grid2Question
   | DropdownQuestion
   | PillsQuestion
+  | KitchenRootQuestion
+  | SourceQuestion
   | IdeaQuestion;
 
 // ─── Game state ──────────────────────────────────────────────────────────────
@@ -255,15 +271,15 @@ export interface DeviceMeta {
   gpu:              string | null;
 
   // ── Battery ───────────────────────────────────────────────────────────────
-  batteryLevel:         number | null;   // 0–100
+  batteryLevel:         number | null;
   batteryCharging:      boolean | null;
-  batteryChargingTime:  number | null;   // seconds
-  batteryDischargingTime: number | null; // seconds
+  batteryChargingTime:  number | null;
+  batteryDischargingTime: number | null;
 
   // ── Network ───────────────────────────────────────────────────────────────
-  networkEffectiveType: string | null;   // '4g' | '3g' | '2g' | 'slow-2g'
-  networkDownlink:      number | null;   // Mbps
-  networkRtt:           number | null;   // ms
+  networkEffectiveType: string | null;
+  networkDownlink:      number | null;
+  networkRtt:           number | null;
   networkSaveData:      boolean | null;
 
   // ── Theme / Preferences ───────────────────────────────────────────────────
@@ -316,8 +332,6 @@ export interface SurveySubmission {
     coins:       number;
     streak:      number;
     textBonusXp: number;
-    // rank:        string;
-    // personality: string;
   };
   meta: {
     device: DeviceMeta;

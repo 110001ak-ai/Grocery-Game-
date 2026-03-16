@@ -214,7 +214,7 @@ export const QUESTIONS: Question[] = [
       { em: "⚡", nm: "Zepto",          color: "#ff2d6e" },
       { em: "🛵", nm: "Instamart",      color: "#ff7a3c" },
       { em: "📦", nm: "BigBasket",      color: "#4ecdc4" },
-      // { em: "🥬", nm: "Local Sabzi Mandi", color: "#06d6a0" },
+      { em: "🥬", nm: "Minutes",        color: "#06d6a0" },
       // { em: "🚜", nm: "Farm Direct",    color: "#a8e063" },
       // { em: "🏪", nm: "DMart",          color: "#0984e3" },
       { em: "🔍", nm: "The Mystery Mouse(Other)",          color: "#dfe6e9" },

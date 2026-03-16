@@ -38,58 +38,76 @@ export default function GameShell() {
       <div className="bg-aurora" aria-hidden />
       <div className="bg-scanlines" aria-hidden />
 
-      {/* Top bar — identical on every screen */}
+      {/* Floating action buttons — always visible, no appbar */}
       <div
-        className="fixed top-0 left-0 right-0 z-[9990] flex justify-between items-center px-4 py-3"
+        className="fixed z-[9990] flex items-center gap-2"
         style={{
-          background: "var(--hud-bg)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1.5px solid var(--border)",
+          top: "env(safe-area-inset-top, 16px)",
+          right: 16,
+          marginTop: 16,
         }}
       >
-        <span
-          className="font-display text-lg cursor-default"
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all active:scale-90 border-none"
           style={{
-            background: "linear-gradient(135deg,var(--primary),var(--gold))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
+            background: "var(--opt-bg)",
+            border: "1.5px solid var(--border)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
           }}
+          aria-label="Toggle theme"
         >
-          🛒 Grocery Game
-        </span>
+          <span suppressHydrationWarning>{isDark ? "🌙" : "☀️"}</span>
+        </button>
 
-        <div className="flex items-center gap-2">
-          {/* Theme toggle — on every screen */}
+        {/* Restart — only during game */}
+        {screen === "game" && (
           <button
-            onClick={toggleTheme}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all active:scale-90 border-none"
-            style={{ background: "var(--opt-bg)", border: "1.5px solid var(--border)" }}
-            aria-label="Toggle theme"
+            onClick={() => setShowRestart(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-transform active:scale-90 border-none"
+            style={{
+              background: "rgba(255,45,110,0.12)",
+              border: "1.5px solid rgba(255,45,110,0.25)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              boxShadow: "0 4px 16px rgba(255,45,110,0.15)",
+            }}
+            aria-label="Restart game"
           >
-            <span suppressHydrationWarning>{isDark ? "🌙" : "☀️"}</span>
+            🔄
           </button>
-
-          {/* Restart — only during game */}
-          {screen === "game" && (
-            <button
-              onClick={() => setShowRestart(true)}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-lg cursor-pointer transition-transform active:scale-90 border-none"
-              style={{ background: "rgba(255,45,110,0.12)", border: "1.5px solid rgba(255,45,110,0.25)" }}
-              aria-label="Restart game"
-            >
-              🔄
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Main content */}
+      {/* Main content — fixed like a mobile app, no scroll bleed */}
       <main
-        className="relative z-10 min-h-screen w-full flex flex-col items-center"
-        style={{ paddingTop: "64px" }}
+        className="relative z-10 w-full flex flex-col items-center"
+        style={{
+          position: "fixed",
+          inset: 0,
+          overflowY: "auto",
+          overflowX: "hidden",
+          WebkitOverflowScrolling: "touch",
+          /* hide scrollbar but keep scrollability */
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
       >
-        <div className="w-full max-w-md px-4 py-5 flex flex-col">
+        <style>{`
+          main::-webkit-scrollbar { display: none; }
+        `}</style>
+
+        <div
+          className="w-full max-w-md px-4 flex flex-col"
+          style={{
+            minHeight: "100%",
+            paddingTop: "calc(env(safe-area-inset-top, 0px) + 72px)",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)",
+          }}
+        >
           {screen === "splash" && <SplashScreen />}
           {screen === "intro"  && <IntroScreen />}
           {screen === "game"   && <GameScreen />}

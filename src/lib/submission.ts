@@ -62,8 +62,6 @@ export async function submitSurvey(payload: SurveySubmission): Promise<void> {
 
   // ── Step 2: Google Sheets — the real submission ───────────────────────────
   const sheetUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEET_URL;
-    console.log("Google Sheet URL:", sheetUrl); // add here
-
 
   // Case 1: URL not configured
   if (!sheetUrl) {
